@@ -1,0 +1,208 @@
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, TextInput, Button, TouchableOpacity } from 'react-native';
+
+export default function App() {
+  const [input, setInput] = useState('');
+  const [result, setResult] = useState('');
+  const [error, setError] = useState('');
+
+ 
+  const evaluateExpression = (expression) => {
+    let modifiedExpression = expression.replace(/sqrt\(([^)]+)\)/g, (match, p1) => `Math.sqrt(${p1})`);
+    
+    
+    try {
+      // Check to make sure the expression is valid
+      const evaluated = new Function('return ' + modifiedExpression)();
+      return evaluated;
+    } catch (error) {
+      setError('Invalid Input');
+      return '';
+    }
+  };
+
+  const handlePress = (value) => {
+    setInput(input + value);
+    setError('');
+  };
+
+  const handleCalculate = () => {
+    // Check for divide by zero
+    if (input.includes('/0')) {
+      setError('Error - Cannot divide by zero');
+      setResult('');
+      return;
+    }
+
+    const evaluated = evaluateExpression(input);
+    if (evaluated !== '') {
+      setResult(evaluated.toString());
+    }
+  };
+
+  const handleClear = () => {
+    setInput('');
+    setResult('');
+    setError('');
+  };
+
+  const handleOperation = (operation) => {
+    if (input === '') {
+      setError('Please enter a number');
+      return;
+    }
+    let updatedInput;
+    switch (operation) {
+      case 'add':
+        updatedInput = input + '+';
+        break;
+
+      case 'subtract':
+        updatedInput = input + '-';
+        break;
+
+      case 'multiply':
+        updatedInput = input + '*';
+        break;
+
+      case 'divide':
+        updatedInput = input + '/';
+        break;
+
+      case 'power':
+        updatedInput = input + '^';
+        break;
+
+      case 'sqrt':
+        updatedInput = 'sqrt(' + input + ')';
+        break;
+
+      default:
+        return;
+    }
+    setInput(updatedInput);
+    setError('');
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.resultContainer}>
+
+        <TextInput
+          style={styles.input}
+          value={input}
+          onChangeText={setInput}
+          placeholder="0"
+          keyboardType="numeric"
+        />
+
+        <Text style={styles.error}>{error}</Text>
+        <Text style={styles.result}>{result}</Text>
+
+      </View>
+
+      <View style={styles.buttonContainer}>
+
+        <View style={styles.row}>
+          <Button title="1" onPress={() => handlePress('1')} />
+          <Button title="2" onPress={() => handlePress('2')} />
+          <Button title="3" onPress={() => handlePress('3')} />
+          <Button title="/" onPress={() => handleOperation('divide')} />
+        </View>
+
+        <View style={styles.row}>
+
+          <Button title="4" onPress={() => handlePress('4')} />
+          <Button title="5" onPress={() => handlePress('5')} />
+          <Button title="6" onPress={() => handlePress('6')} />
+          <Button title="*" onPress={() => handleOperation('multiply')} />
+
+        </View>
+
+        <View style={styles.row}>
+
+          <Button title="7" onPress={() => handlePress('7')} />
+          <Button title="8" onPress={() => handlePress('8')} />
+          <Button title="9" onPress={() => handlePress('9')} />
+          <Button title="-" onPress={() => handleOperation('subtract')} />
+
+        </View>
+
+        <View style={styles.row}>
+
+          <Button title="0" onPress={() => handlePress('0')} />
+          <Button title="." onPress={() => handlePress('.')} />
+          <Button title="C" onPress={handleClear} />
+          <Button title="+" onPress={() => handleOperation('add')} />
+
+        </View>
+
+        <View style={styles.row}>
+
+          <Button title="x^y" onPress={() => handleOperation('power')} />
+          <Button title="√x" onPress={() => handleOperation('sqrt')} />
+
+          <TouchableOpacity style={styles.calculateButton} onPress={handleCalculate}>
+            <Text style={styles.calculateText}>Calculate</Text>
+          </TouchableOpacity>
+
+        </View>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 16,
+  },
+  resultContainer: {
+    marginBottom: 20,
+  },
+  input: {
+    fontSize: 40,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    marginBottom: 10,
+    textAlign: 'right',
+    padding: 10,
+  },
+
+  error: {
+    fontSize: 20,
+    color: 'red',
+    textAlign: 'right',
+  },
+
+  result: {
+    fontSize: 40,
+    textAlign: 'right',
+    padding: 10,
+    color: 'black',
+  },
+
+  buttonContainer: {
+    flex: 1,
+  },
+
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+
+  calculateButton: {
+    backgroundColor: '#4CAF50',
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+    flex: 1,
+  },
+  
+  calculateText: {
+    color: 'white',
+    fontSize: 20,
+  },
+});
